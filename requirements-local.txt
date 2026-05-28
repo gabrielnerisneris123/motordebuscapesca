@@ -1,0 +1,21 @@
+# Web Framework
+fastapi
+uvicorn
+python-multipart
+
+# Database
+sqlalchemy
+aiosqlite
+
+# Scraping
+beautifulsoup4
+httpx
+
+# Text Processing
+unidecode
+
+# Utils
+python-dotenv
+pydantic
+pydantic-settings
+loguru
