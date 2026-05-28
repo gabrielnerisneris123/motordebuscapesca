@@ -8,7 +8,7 @@
         "maxLambdaSize": "15mb",
         "includeFiles": [
           "app/**",
-          "requirements-vercel.txt"
+          "requirements-supabase.txt"
         ],
         "excludeFiles": [
           "workers/**",
@@ -17,7 +17,8 @@
           "logs/**",
           "Dockerfile",
           "docker-compose.yml",
-          "requirements.txt"
+          "requirements.txt",
+          "requirements-vercel.txt"
         ]
       }
     }
@@ -39,7 +40,7 @@
     "PYTHONPATH": ".",
     "APP_ENV": "production",
     "DEBUG": "false",
-    "DATABASE_URL": "sqlite+aiosqlite:///tmp/motordebusca.db",
-    "DATABASE_URL_SYNC": "sqlite:///tmp/motordebusca.db"
+    "DATABASE_URL": "postgresql+asyncpg://postgres:%2ABiel-1512%2A@db.kynpgwwhuilvfvzrbaos.supabase.co:5432/postgres",
+    "DATABASE_URL_SYNC": "postgresql://postgres:%2ABiel-1512%2A@db.kynpgwwhuilvfvzrbaos.supabase.co:5432/postgres"
   }
 }
