@@ -1,0 +1,47 @@
+# Web Framework
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+python-multipart==0.0.9
+
+# Database
+sqlalchemy==2.0.35
+aiosqlite==0.20.0
+
+# Scraping (sem Playwright no serverless)
+beautifulsoup4==4.12.3
+requests==2.32.3
+httpx==0.27.2
+lxml==5.3.0
+html5lib==1.1
+
+# Data Processing
+pandas==2.2.3
+numpy==1.26.4
+python-dateutil==2.9.0
+chardet==5.2.0
+ftfy==6.2.3
+
+# Deduplication / Hashing
+datasketch==1.6.5
+simhash==2.1.2
+xxhash==3.5.0
+
+# Text Processing
+unidecode==1.3.8
+regex==2024.9.11
+
+# Serverless
+mangum==0.17.0
+
+# Async
+nest-asyncio==1.6.0
+
+# Utils
+python-dotenv==1.0.1
+pydantic==2.9.2
+pydantic-settings==2.5.2
+tenacity==9.0.0
+loguru==0.7.2
+tqdm==4.66.5
+fake-useragent==1.5.1
+cachetools==5.5.0

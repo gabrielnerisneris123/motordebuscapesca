@@ -1,0 +1,45 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/index.py",
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "15mb",
+        "includeFiles": [
+          "app/**",
+          "requirements-vercel.txt"
+        ],
+        "excludeFiles": [
+          "workers/**",
+          "scripts/**",
+          "alembic/**",
+          "logs/**",
+          "Dockerfile",
+          "docker-compose.yml",
+          "requirements.txt"
+        ]
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/static/(.*)",
+      "dest": "/app/dashboard/static/$1",
+      "headers": {
+        "Cache-Control": "public, max-age=3600"
+      }
+    },
+    {
+      "src": "/(.*)",
+      "dest": "api/index.py"
+    }
+  ],
+  "env": {
+    "PYTHONPATH": ".",
+    "APP_ENV": "production",
+    "DEBUG": "false",
+    "DATABASE_URL": "sqlite+aiosqlite:///tmp/motordebusca.db",
+    "DATABASE_URL_SYNC": "sqlite:///tmp/motordebusca.db"
+  }
+}
