@@ -16,27 +16,48 @@ os.environ["APP_ENV"] = "production"
 os.environ["DEBUG"] = "false"
 os.environ["REDIS_URL"] = ""
 
-# ===== PREPARA OS MÓDULOS SUBSTITUTOS =====
-import app.database_vercel as _database_vercel
-import app.config_vercel as _config_vercel
-import app.celery_app_vercel as _celery_app_vercel
-import app.tasks_vercel as _tasks_vercel
-import app.crawler.scraper_vercel as _scraper_vercel
+try:
+    # ===== PREPARA OS MÓDULOS SUBSTITUTOS =====
+    import app.database_vercel as _database_vercel
+    import app.config_vercel as _config_vercel
+    import app.celery_app_vercel as _celery_app_vercel
+    import app.tasks_vercel as _tasks_vercel
+    import app.crawler.scraper_vercel as _scraper_vercel
 
-# Injeta os módulos substitutos no sys.modules ANTES de qualquer outro import
-sys.modules["app.database"] = _database_vercel
-sys.modules["app.config"] = _config_vercel
-sys.modules["app.celery_app"] = _celery_app_vercel
-sys.modules["app.tasks"] = _tasks_vercel
-sys.modules["app.crawler.scraper"] = _scraper_vercel
+    # Injeta os módulos substitutos no sys.modules ANTES de qualquer outro import
+    sys.modules["app.database"] = _database_vercel
+    sys.modules["app.config"] = _config_vercel
+    sys.modules["app.celery_app"] = _celery_app_vercel
+    sys.modules["app.tasks"] = _tasks_vercel
+    sys.modules["app.crawler.scraper"] = _scraper_vercel
 
-# ===== IMPORTA OS MODELOS (agora usarão o Base do database_vercel) =====
-from app.models import fonte, conteudo, entidade, log
+    # ===== IMPORTA OS MODELOS (agora usarão o Base do database_vercel) =====
+    from app.models import fonte, conteudo, entidade, log
 
-# ===== IMPORTA O APP PRINCIPAL =====
-from app.main_vercel import app
+    # ===== IMPORTA O APP PRINCIPAL =====
+    from app.main_vercel import app
 
-# ===== HANDLER PARA VERCEL =====
-from mangum import Mangum
+    # ===== HANDLER PARA VERCEL =====
+    from mangum import Mangum
 
-handler = Mangum(app, lifespan="off")
+    handler = Mangum(app, lifespan="off")
+
+except Exception as e:
+    import traceback
+    error_msg = f"Erro na inicialização: {str(e)}\n{traceback.format_exc()}"
+    
+    # Cria um app mínimo que retorna o erro
+    from fastapi import FastAPI
+    from fastapi.responses import JSONResponse
+    
+    app = FastAPI()
+    
+    @app.get("/{path:path}")
+    async def error_handler(path: str = ""):
+        return JSONResponse(
+            status_code=500,
+            content={"error": error_msg}
+        )
+    
+    from mangum import Mangum
+    handler = Mangum(app, lifespan="off")
