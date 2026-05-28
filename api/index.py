@@ -1,6 +1,6 @@
 """
 Entrypoint para deploy no Vercel (Serverless Functions).
-Adapta o app FastAPI para funcionar no ambiente serverless.
+Suporta tanto SQLite local quanto PostgreSQL (Supabase).
 """
 
 import sys
@@ -9,29 +9,41 @@ import os
 # Adiciona o diretório raiz ao path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# ===== SET ENV VARS ANTES DE QUALQUER IMPORT =====
-os.environ["DATABASE_URL"] = "sqlite+aiosqlite:///tmp/motordebusca.db"
-os.environ["DATABASE_URL_SYNC"] = "sqlite:///tmp/motordebusca.db"
-os.environ["APP_ENV"] = "production"
-os.environ["DEBUG"] = "false"
-os.environ["REDIS_URL"] = ""
+# ===== SET ENV VARS PADRÃO =====
+# Se não houver DATABASE_URL do Supabase, usa SQLite
+os.environ.setdefault("APP_ENV", "production")
+os.environ.setdefault("DEBUG", "false")
+os.environ.setdefault("REDIS_URL", "")
+
+# Se não tiver DATABASE_URL configurado (Supabase), usa SQLite
+if not os.environ.get("DATABASE_URL"):
+    os.environ["DATABASE_URL"] = "sqlite+aiosqlite:///tmp/motordebusca.db"
+    os.environ["DATABASE_URL_SYNC"] = "sqlite:///tmp/motordebusca.db"
 
 try:
-    # ===== PREPARA OS MÓDULOS SUBSTITUTOS =====
-    import app.database_vercel as _database_vercel
+    # Detecta se é PostgreSQL (Supabase) ou SQLite
+    db_url = os.environ.get("DATABASE_URL", "")
+    
+    if "postgresql" in db_url or "postgres" in db_url:
+        # Usa o módulo Supabase (PostgreSQL)
+        import app.database_supabase as _database
+    else:
+        # Usa o módulo SQLite (Vercel local)
+        import app.database_vercel as _database
+    
     import app.config_vercel as _config_vercel
     import app.celery_app_vercel as _celery_app_vercel
     import app.tasks_vercel as _tasks_vercel
     import app.crawler.scraper_vercel as _scraper_vercel
 
-    # Injeta os módulos substitutos no sys.modules ANTES de qualquer outro import
-    sys.modules["app.database"] = _database_vercel
+    # Injeta os módulos substitutos no sys.modules
+    sys.modules["app.database"] = _database
     sys.modules["app.config"] = _config_vercel
     sys.modules["app.celery_app"] = _celery_app_vercel
     sys.modules["app.tasks"] = _tasks_vercel
     sys.modules["app.crawler.scraper"] = _scraper_vercel
 
-    # ===== IMPORTA OS MODELOS (agora usarão o Base do database_vercel) =====
+    # ===== IMPORTA OS MODELOS =====
     from app.models import fonte, conteudo, entidade, log
 
     # ===== IMPORTA O APP PRINCIPAL =====
